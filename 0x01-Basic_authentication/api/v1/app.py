@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-For the API Module 
+For the API Module
 """
 from os import getenv
 from api.v1.views import app_views
@@ -32,21 +32,21 @@ def not_found(error) -> str:
 
 @app.errorhandler(401)
 def unauthorized_error(error) -> str:
-    """handler Unauthorized 
+    """handler Unauthorized
     """
     return jsonify({"error": "Unauthorized"}), 401
 
 
 @app.errorhandler(403)
 def forbidden_error(error) -> str:
-    """handler Forbidden 
+    """handler Forbidden
     """
     return jsonify({"error": "Forbidden"}), 403
 
 
 @app.before_request
 def before_request() -> str:
-    """Handler Before Request 
+    """Handler Before Request
     Validation Requests
     """
     if auth is None:
