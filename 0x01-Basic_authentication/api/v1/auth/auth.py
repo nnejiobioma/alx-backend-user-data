@@ -11,7 +11,7 @@ class Auth:
 
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
         """ Method that Return true if the path is not in
-	the list of strings.
+        the list of strings.
         """
         if path is None:
             return True
