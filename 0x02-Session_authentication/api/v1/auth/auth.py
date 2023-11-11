@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-""" Auth class.
+""" Class Auth Classes.
 """
-from typing import List, TypeVar
 from flask import request
+from typing import List, TypeVar
+from os import getenv
 
 
 class Auth:
@@ -10,8 +11,8 @@ class Auth:
     """
 
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
-        """ Method that Return true if the path is not in
-        the list of strings.
+        """ Method
+        The path is not in the list of strings.
         """
         if path is None:
             return True
@@ -24,7 +25,8 @@ class Auth:
         return True
 
     def authorization_header(self, request=None) -> str:
-        """Validate all requests to protect the API.
+        """ Method to validate all requests to protect the API.
+        None - request.
         """
         if request is None:
             return None
@@ -34,7 +36,14 @@ class Auth:
             return request.headers["Authorization"]
 
     def current_user(self, request=None) -> TypeVar('User'):
-        """ Method that Return:
-        None - request.
+        """ Method
+        Args:request.
         """
         return None
+
+    def session_cookie(self, request=None):
+        """ Returns a cookie value from a request.
+        """
+        if request is None:
+            return None
+        return request.cookies.get(getenv('SESSION_NAME'))
