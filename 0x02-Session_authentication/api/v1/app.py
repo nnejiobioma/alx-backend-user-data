@@ -13,19 +13,23 @@ app = Flask(__name__)
 app.register_blueprint(app_views)
 CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
 auth = None
-AUTH_TYPE = getenv("AUTH_TYPE")
 
-if AUTH_TYPE == "auth":
+if getenv("AUTH_TYPE") == "auth":
     from api.v1.auth.auth import Auth
     auth = Auth()
-elif AUTH_TYPE == "basic_auth":
+
+elif getenv("AUTH_TYPE") == "basic_auth":
     from api.v1.auth.basic_auth import BasicAuth
     auth = BasicAuth()
+
+elif getenv("AUTH_TYPE") == "session_auth":
+    from api.v1.auth.session_auth import SessionAuth
+    auth = SessionAuth()
 
 
 @app.before_request
 def beforeRequest() -> None:
-    """Filter every request.
+    """ Filter every request.
     """
     if auth is not None:
         if auth.require_auth(path=request.path,
@@ -43,48 +47,26 @@ def beforeRequest() -> None:
 
 @app.errorhandler(404)
 def not_found(error) -> str:
-    """Found handler
+    """ Found handler.
     """
     return jsonify({"error": "Not found"}), 404
 
 
 @app.errorhandler(401)
-def unauthorized_error(error) -> str:
-    """handler Unauthorized
+def RequestUnauthorized(error) -> str:
+    """Unauthorized handler.
     """
     return jsonify({"error": "Unauthorized"}), 401
 
 
 @app.errorhandler(403)
-def forbidden_error(error) -> str:
-    """handler Forbidden
+def RequestForbidden(error) -> str:
+    """ Forbidden handler.
     """
     return jsonify({"error": "Forbidden"}), 403
-
-
-@app.before_request
-def before_request() -> str:
-    """Handler Before Request
-    Validation Requests
-    """
-    if auth is None:
-        return
-
-    excluded_paths = ['/api/v1/status/',
-                      '/api/v1/unauthorized/',
-                      '/api/v1/forbidden/']
-
-    if not auth.require_auth(request.path, excluded_paths):
-        return
-
-    if auth.authorization_header(request) is None:
-        abort(401)
-
-    if auth.current_user(request) is None:
-        abort(403)
 
 
 if __name__ == "__main__":
     host = getenv("API_HOST", "0.0.0.0")
     port = getenv("API_PORT", "5000")
-    app.run(host=host, port=port)
+    app.run(host=host, port=port, debug=True)
