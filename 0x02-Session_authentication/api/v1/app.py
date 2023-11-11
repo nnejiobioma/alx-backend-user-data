@@ -23,6 +23,24 @@ elif AUTH_TYPE == "basic_auth":
     auth = BasicAuth()
 
 
+@app.before_request
+def beforeRequest() -> None:
+    """Filter every request.
+    """
+    if auth is not None:
+        if auth.require_auth(path=request.path,
+                             excluded_paths=["/api/v1/status/",
+                                             "/api/v1/unauthorized/",
+                                             "/api/v1/forbidden/",
+                                             "/api/v1/auth_session/login/"]):
+            ah = auth.authorization_header(request)
+            if not ah and not auth.session_cookie(request):
+                abort(401)
+            if not auth.current_user(request):
+                abort(403)
+            request.current_user = auth.current_user(request)
+
+
 @app.errorhandler(404)
 def not_found(error) -> str:
     """Found handler
